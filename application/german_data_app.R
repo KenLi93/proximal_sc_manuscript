@@ -8,7 +8,7 @@ library(Rsolnp)
 library(RColorBrewer)
 
 mycols <- brewer.pal(8, "Set1")
-my.filepath = "application_new/"
+my.filepath = "application/"
 source(paste0(my.filepath, "german_data_functions.R"))
 source(paste0(my.filepath, "functions_conformal.R"))
 source(paste0(my.filepath, "scpi_ate.R"))
