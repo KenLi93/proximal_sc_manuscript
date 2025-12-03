@@ -17,8 +17,7 @@ library(parallel)
 library(scpi)
 source("functions_linear.R")
 param_grid <- rbind(expand.grid(n.rep = 500,
-                                #t0 = c(30, 100, 200),
-                                t0 = 100,
+                                t0 = c(30, 80, 140, 200),
                                 #n.units = c(1 + 2, 1 + 10, 1 + 20),
                                 n.units = c(5, 7, 11),
                                 dist.epsilon = c("iid"),
@@ -28,8 +27,7 @@ param_grid <- rbind(expand.grid(n.rep = 500,
                                 addcov = c(TRUE, FALSE),
                                 batch = 1:10),
                     expand.grid(n.rep = 500,
-                                #t0 = c(30, 100, 200),
-                                t0 = 100,
+                                t0 = c(30, 80, 100, 200),
                                 # n.units = c(1 + 2, 1 + 10, 1 + 20),
                                 n.units = c(5, 7, 11),
                                 dist.epsilon = c("AR"),
@@ -39,16 +37,6 @@ param_grid <- rbind(expand.grid(n.rep = 500,
                                 addcov = c(FALSE),
                                 batch = 1:10)) %>% unique()
 
-# param_grid <- expand.grid(n.rep = 500,
-#                           t0 = c(80, 140, 200),
-#                           #n.units = c(1 + 2, 1 + 10, 1 + 20),
-#                           n.units = c(5, 7, 11),
-#                           dist.epsilon = c("iid"),
-#                           dist.lambda = c("stationary", "nonstationary"),
-#                           #dist.lambda = "nonstationary",
-#                           U.setting = c("constrained"),
-#                           addcov = c(FALSE),
-#                           batch = 1:10)
 
 ## latent factors 
 gen.lambda <- function(n.units, t, dist.lambda){
