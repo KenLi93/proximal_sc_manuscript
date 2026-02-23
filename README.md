@@ -19,5 +19,7 @@ Below are the descriptions of the directories and files:
   - german_data_app.R: the code for data analysis using the German reunification data.
     - Figures 3 and S.9 are generated using code in german_data_app.R.
 # methods:
-  - functions_linear.R, functions_conformal.R, functions_conformal_avgeff.R, scpi_ate.R: methods to perform effect estimation or conformal inference of the effect size estimates;
+  - functions_linear.R, functions_conformal.R, functions_conformal_avgeff.R, scpi_ate.R: methods to perform effect estimation or conformal inference of the effect size estimates.
+
+
 For any questions, please contact Kendrick Li (kendrick.li@stjude.org).
