@@ -4,8 +4,8 @@
 ##### (1) Constrained OLS (Abadie)                    #####
 ##### (2) Unconstrained OLS                           #####
 ##### (3) Proximal inference                          #####
-##### shixu@umich.edu                                 #####
-##### 09/26/2021                                      #####
+##### kendrick.li@stjude.org                          #####
+##### 02/23/2026                                      #####
 ###########################################################
 rm(list=ls())
 

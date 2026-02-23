@@ -1,3 +1,14 @@
+###########################################################
+##### Summary table                                   #####
+##### Predictive inference for average effect under   #####
+##### the linear interactive fixed effects model      #####
+##### using synthetic control methods                 #####
+##### (1) GMM method                                  #####
+##### (2) SCPI method                                 #####
+##### kendrick.li@stjude.org                          #####
+##### 02/23/2021                                      #####
+###########################################################
+
 rm(list = ls())
 
 library(dplyr)
@@ -15,6 +26,7 @@ param_grid <- expand.grid(n.rep = 500,
 
 results_list <- vector("list", nrow(param_grid))
 
+## Reading simulation results and organizing into a single data frame
 for (i in 1:length(results_list)) {
   temp_df <- NULL
   n.rep <- param_grid[i, "n.rep"]
@@ -52,6 +64,7 @@ for (i in 1:length(results_list)) {
   results_list[[i]] <- cbind(temp_df, t0, n.units, dist.lambda, U.setting)
 }
 
+## Make the summary table for coverage probabilities and average interval lengths 
 results_summary <- bind_rows(results_list) %>%
   filter(NC_gmm_lb > -20, NC_gmm_ub < 20, 
          NC_scpi_unconstrained_lb > -20, NC_scpi_unconstrained_ub < 20) %>%

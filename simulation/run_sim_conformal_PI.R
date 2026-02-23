@@ -1,13 +1,11 @@
 ###########################################################
-##### Setting: Linear interactive fixed effects model #####
-##### Synthetic control methods                       #####
-##### (1) SC                                          #####
-##### (2) Unconstrained OLS                           #####
-##### (3) Proximal inference                          #####
-##### (4) Proximal inference w/o constraints          #####
-##### (5) scpi w/o constraints                        #####
-##### shixu@umich.edu                                 #####
-##### 09/26/2021                                      #####
+##### Pointwise predictive inference under the linear #####
+##### interactive fixed effects model using           #####
+##### synthetic control methods                       #####
+##### (1) Permutation inference method                #####
+##### (2) SCPI method                                 #####
+##### kendrick.li@stjude.org                          #####
+##### 02/23/2021                                      #####
 ###########################################################
 rm(list=ls())
 
@@ -31,16 +29,7 @@ param_grid <- expand.grid(n.rep = 500,
                           alpha = c(0.1),
                           batch = 1:10)
 
-# param_grid <- expand.grid(n.rep = 500,
-#                           t0 = c(80, 140, 200),
-#                           #n.units = c(1 + 2, 1 + 10, 1 + 20),
-#                           n.units = c(5, 7, 11),
-#                           dist.epsilon = c("iid"),
-#                           dist.lambda = c("stationary", "nonstationary"),
-#                           #dist.lambda = "nonstationary",
-#                           U.setting = c("constrained"),
-#                           addcov = c(FALSE),
-#                           batch = 1:10)
+
 
 ## latent factors 
 gen.lambda <- function(n.units, t, dist.lambda){

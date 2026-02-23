@@ -1,5 +1,15 @@
+#############################################################
+## classical synthetic control method, with covariates
+## Input data is a list that contains the following elements:
+## X: treatment indicator with length T
+## Z: a T-by-N matrix of proxies
+## W: a T-by-N matrix of control units
+## Y: a T-by-N matrix of outcomes
+## C.Y: a T-by-N matrix of covariates for the outcome units
+## C.W: a T-by-N matrix of covariates for the control units
+## C.Z: a T-by-N matrix of covariates for the proxy units
+#############################################################
 
-# classical synthetic control method, with covariates
 SC_cov <- function(data) {
   t0 <- sum(1 - data$X)
   tt <- length(data$X)
@@ -53,7 +63,14 @@ SC_cov <- function(data) {
               SC_wts = ww_ordered))
 }
 
-# classical synthetic control method, without covariates
+#############################################################
+## classical synthetic control method, without covariates
+## Input data is a list that contains the following elements:
+## X: treatment indicator with length T
+## Z: a T-by-N matrix of proxies
+## W: a T-by-N matrix of control units
+## Y: a T-by-N matrix of outcomes
+#############################################################
 SC_nocov <- function(data) {
   Z <- data$Z
   W <- data$W
@@ -102,7 +119,17 @@ SC_nocov <- function(data) {
 }
 
 
-# Negative control approach to synthetic control, with covariates
+#############################################################
+## OLS method for synthetic control with covariates
+## Input data is a list that contains the following elements:
+## X: treatment indicator with length T
+## Z: a T-by-N matrix of proxies
+## W: a T-by-N matrix of control units
+## Y: a T-by-N matrix of outcomes
+## C.Y: a T-by-N matrix of covariates for the outcome units
+## C.W: a T-by-N matrix of covariates for the control units
+## C.Z: a T-by-N matrix of covariates for the proxy units
+#############################################################
 SC_OLS_cov <- function(data, q = 10) {
   S1 <- with(data, cbind(X, W, Z, C.Y, C.Z, C.W))
   S2 <- with(data, cbind(X, W * (1 - X), Z * (1 - X),
@@ -131,7 +158,14 @@ SC_OLS_cov <- function(data, q = 10) {
               se_hac = sqrt(HACVAR[1, 1])))
 }
 
-# OLS method for SC, without covariates
+#############################################################
+## OLS method for SC, without covariates
+## Input data is a list that contains the following elements:
+## X: treatment indicator with length T
+## Z: a T-by-N matrix of proxies
+## W: a T-by-N matrix of control units
+## Y: a T-by-N matrix of outcomes
+#############################################################
 SC_OLS_nocov <- function(data, q = 10) {
   S1 <- with(data, cbind(X, W, Z))
   S2 <- with(data, cbind(X, W * (1 - X), Z * (1 - X)))
@@ -159,8 +193,18 @@ SC_OLS_nocov <- function(data, q = 10) {
               se_hac = sqrt(HACVAR[1, 1])))
 }
 
+#############################################################
+## Negative control approach to synthetic control, with covariates
+## Input data is a list that contains the following elements:
+## X: treatment indicator with length T
+## Z: a T-by-N matrix of proxies
+## W: a T-by-N matrix of control units
+## Y: a T-by-N matrix of outcomes
+## C.Y: a T-by-N matrix of covariates for the outcome units
+## C.W: a T-by-N matrix of covariates for the control units
+## C.Z: a T-by-N matrix of covariates for the proxy units
+#############################################################
 
-# Negative control approach to synthetic control, with covariates
 NC_SC_cov <- function(data, q = 10) {
   n.W <- ncol(data$W)
   S1 <- with(data, cbind(X, W, C.Y, C.W))
@@ -195,10 +239,19 @@ NC_SC_cov <- function(data, q = 10) {
               se_hac = sqrt(HACVAR[1, 1])))
 }
 
-# classical SC method
+#############################################################
+## Negative control approach to synthetic control, with covariates
+## SC weights are constrained in a simplex
+## Input data is a list that contains the following elements:
+## X: treatment indicator with length T
+## Z: a T-by-N matrix of proxies
+## W: a T-by-N matrix of control units
+## Y: a T-by-N matrix of outcomes
+## C.Y: a T-by-N matrix of covariates for the outcome units
+## C.W: a T-by-N matrix of covariates for the control units
+## C.Z: a T-by-N matrix of covariates for the proxy units
+#############################################################
 
-# Negative control approach to synthetic control, with covariates and 
-# constraints on the synthetic control weights
 NC_SC_constrained_cov <- function(data) {
   n.W <- ncol(data$W)
   
@@ -285,7 +338,14 @@ NC_SC_constrained_cov <- function(data) {
   
 }
 
-# Negative control approach to synthetic control, ignoring covariates
+#############################################################
+## Negative control approach to synthetic control, without covariates
+## Input data is a list that contains the following elements:
+## X: treatment indicator with length T
+## Z: a T-by-N matrix of proxies
+## W: a T-by-N matrix of control units
+## Y: a T-by-N matrix of outcomes
+#############################################################
 NC_SC_nocov <- function(data, q = 10) {
   n.W <- ncol(data$W)
   S1 <- with(data, cbind(X, W))
@@ -320,8 +380,16 @@ NC_SC_nocov <- function(data, q = 10) {
 }
 
 
+#############################################################
+## Negative control approach to synthetic control, without covariates
+## SC weights are constrained in a simplex
+## Input data is a list that contains the following elements:
+## X: treatment indicator with length T
+## Z: a T-by-N matrix of proxies
+## W: a T-by-N matrix of control units
+## Y: a T-by-N matrix of outcomes
+#############################################################
 
-## NC approach without covariates, using constraints on the SC weights
 NC_SC_constrained_nocov <- function(data, use_posttrt_data = T) {
   n.W <- ncol(data$W)
   

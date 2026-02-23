@@ -1,4 +1,18 @@
-# Negative control approach to synthetic control, ignoring covariates
+
+###########################################################
+##### kendrick.li@stjude.org                          #####
+##### 02/23/2021                                      #####
+###########################################################
+
+#############################################################
+## GMM method for the CI of the average effect
+## Negative control approach to synthetic control, without covariates
+## Input data is a list that contains the following elements:
+## X: treatment indicator with length T
+## Z: a T-by-N matrix of proxies
+## W: a T-by-N matrix of control units
+## Y: a T-by-N matrix of outcomes
+#############################################################
 NC_nocov_gmm <- function(data, q = 10, alpha = 0.1) {
   n.W <- ncol(data$W)
   S1 <- with(data, cbind(X, W))
@@ -35,7 +49,15 @@ NC_nocov_gmm <- function(data, q = 10, alpha = 0.1) {
 }
 
 
-# Negative control approach to synthetic control, ignoring covariates
+#############################################################
+## GMM method for the CI of the average effect
+## OLS to synthetic control, without covariates
+## Input data is a list that contains the following elements:
+## X: treatment indicator with length T
+## Z: a T-by-N matrix of proxies
+## W: a T-by-N matrix of control units
+## Y: a T-by-N matrix of outcomes
+#############################################################
 OLS_nocov_gmm <- function(data, q = 10, alpha = 0.1) {
   n.W <- ncol(data$W)
   S1 <- with(data, cbind(X, W, Z))
@@ -71,7 +93,14 @@ OLS_nocov_gmm <- function(data, q = 10, alpha = 0.1) {
            HAC_CI_lb = HAC_CI_lb, HAC_CI_ub = HAC_CI_ub))
 }
 
-
+##############################################################
+## SCPI method for prediction interval of the average effect
+## Input data is a list that contains the following elements:
+## X: treatment indicator with length T
+## Z: a T-by-N matrix of proxies
+## W: a T-by-N matrix of control units
+## Y: a T-by-N matrix of outcomes
+#############################################################
 scpi_sc_int <- function(data, t0, method = "ols", alpha = 0.1) {
   Z <- data$Z
   W <- data$W
@@ -127,7 +156,15 @@ scpi_sc_int <- function(data, t0, method = "ols", alpha = 0.1) {
   return(eff_pi)
 }
 
-
+##############################################################
+## SCPI method for prediction interval of the average effect
+## The proximal inference approach
+## Input data is a list that contains the following elements:
+## X: treatment indicator with length T
+## Z: a T-by-N matrix of proxies
+## W: a T-by-N matrix of control units
+## Y: a T-by-N matrix of outcomes
+#############################################################
 scpi_nc_int <- function(data, t0, method = "ols", alpha = 0.1) {
   Z <- data$Z
   W <- data$W

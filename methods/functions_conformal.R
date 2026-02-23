@@ -1,5 +1,18 @@
 
-## estimating equation to estimate the SC weights
+###########################################################
+##### kendrick.li@stjude.org                          #####
+##### 02/23/2021                                      #####
+###########################################################
+
+
+#############################################################
+## Negative control approach to synthetic control, without covariates
+## Input data is a list that contains the following elements:
+## X: treatment indicator with length T
+## Z: a T-by-N matrix of proxies
+## W: a T-by-N matrix of control units
+## Y: a T-by-N matrix of outcomes
+#############################################################
 NC_nocov <- function(data){
   Y <- cbind(data$Y)
   Z <- cbind(data$Z)
@@ -19,7 +32,14 @@ NC_nocov <- function(data){
 }
 
 
-## estimating equation to estimate the SC weights
+#############################################################
+## OLS method for SC, without covariates
+## Input data is a list that contains the following elements:
+## X: treatment indicator with length T
+## Z: a T-by-N matrix of proxies
+## W: a T-by-N matrix of control units
+## Y: a T-by-N matrix of outcomes
+#############################################################
 OLS_nocov <- function(data){
   Y <- cbind(data$Y);
   V <- cbind(data$W, data$Z)
@@ -36,6 +56,14 @@ OLS_nocov <- function(data){
   return(OLS_est)
 }
 
+#############################################################
+## classical synthetic control method, without covariates
+## Input data is a list that contains the following elements:
+## X: treatment indicator with length T
+## Z: a T-by-N matrix of proxies
+## W: a T-by-N matrix of control units
+## Y: a T-by-N matrix of outcomes
+#############################################################
 SC_nocov <- function(data, t0) {
   Y <- data$Y
   tt <- length(Y)
@@ -83,7 +111,15 @@ SC_nocov <- function(data, t0) {
 
 
 
-
+#############################################################
+## Negative control approach to synthetic control, without covariates
+## SC weights are constrained in a simplex
+## Input data is a list that contains the following elements:
+## X: treatment indicator with length T
+## Z: a T-by-N matrix of proxies
+## W: a T-by-N matrix of control units
+## Y: a T-by-N matrix of outcomes
+#############################################################
 NC_constrained_nocov <- function(data, t0) {
   
   ## objective function for optimization
@@ -126,7 +162,14 @@ NC_constrained_nocov <- function(data, t0) {
   
 }
 
-## Conformal pointwise confidence intervals
+##############################################################
+## Permutation inference for pointwise confidence intervals
+## Input data is a list that contains the following elements:
+## X: treatment indicator with length T
+## Z: a T-by-N matrix of proxies
+## W: a T-by-N matrix of control units
+## Y: a T-by-N matrix of outcomes
+#############################################################
 ConformalPointwiseCI <- 
   function(data, t0, grid, addcov, output = "both", alpha = 0.1, method = "NC") {
     X <- cbind(data$X); Y <- cbind(data$Y)
@@ -186,7 +229,14 @@ ConformalPointwiseCI <-
     }
   }
 
-
+##############################################################
+## SCPI method for prediction interval 
+## Input data is a list that contains the following elements:
+## X: treatment indicator with length T
+## Z: a T-by-N matrix of proxies
+## W: a T-by-N matrix of control units
+## Y: a T-by-N matrix of outcomes
+#############################################################
 scpi_sc_int <- function(data, t0, method = "ols", alpha = 0.1) {
   Z <- data$Z
   W <- data$W
@@ -242,6 +292,15 @@ scpi_sc_int <- function(data, t0, method = "ols", alpha = 0.1) {
   return(eff_pi)
 }
 
+##############################################################
+## SCPI method of the prediction interval for the
+## proximal inference approach
+## Input data is a list that contains the following elements:
+## X: treatment indicator with length T
+## Z: a T-by-N matrix of proxies
+## W: a T-by-N matrix of control units
+## Y: a T-by-N matrix of outcomes
+#############################################################
 scpi_nc_int <- function(data, t0, method = "ols", alpha = 0.1) {
   Z <- data$Z
   W <- data$W

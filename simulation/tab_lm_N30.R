@@ -1,3 +1,15 @@
+###########################################################
+##### Summary table with T0 = 30                      #####
+##### Setting: Linear interactive fixed effects model #####
+##### Synthetic control methods                       #####
+##### (1) Constrained OLS (Abadie)                    #####
+##### (2) Unconstrained OLS                           #####
+##### (3) Proximal inference                          #####
+##### kendrick.li@stjude.org                          #####
+##### 02/23/2026                                      #####
+###########################################################
+rm(list=ls())
+
 rm(list=ls())
 
 library(dplyr)
@@ -27,14 +39,11 @@ param_grid <- rbind(expand.grid(dist.epsilon = c("iid"),
                                 dist.lambda = c("stationary", "nonstationary"),
                                 U.setting = c("constrained", "unconstrained"),
                                 addcov = c(FALSE))) %>% unique()
-# param_grid <- expand.grid(dist.epsilon = c("iid"),
-#                           dist.lambda = c("stationary", "nonstationary"),
-#                           U.setting = c("constrained"),
-#                           addcov = c(FALSE)) 
 
 
 
 
+## Reading all datasets and organizing into a single data frame
 rslt.all.combine <- NULL
 
 for (ii in 1:nrow(param_grid)) {      
@@ -98,6 +107,8 @@ for (ii in 1:nrow(param_grid)) {
   }
 }
 
+## For each scenario, obtain the bias, median absolute error, and SD of
+## different estimators
 
 rslt.all.summary.nocov <- rslt.all.combine %>%
   filter(addcov == F) %>%

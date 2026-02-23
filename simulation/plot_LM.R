@@ -1,23 +1,41 @@
+###########################################################
+##### Visualization of Simulation Results             #####
+##### Linear interactive fixed effects model for      ##### 
+##### Synthetic control methods                       #####
+##### (1) Constrained OLS                             #####
+##### (2) Unconstrained OLS                           #####
+##### (3) Proximal inference                          #####
+##### kendrick.li@stjude.org                          #####
+##### 02/23/2026                                      #####
+###########################################################
+
+
 rm(list=ls())
 
 library(dplyr)
 library(RColorBrewer)
 
 colp.OLS <- rep(0, 3)
-colp.SC <- rep(1, 3)#c("gray70","gray90","gray100")
-colp.NC <- rep(2, 3)#c("gray70","gray90","gray100")
+colp.SC <- rep(1, 3)
+colp.NC <- rep(2, 3)
 colp.NC_cons <- rep(5, 3)
 
-add.col <- NA #c("gray10")
+add.col <- NA 
+
+##########################################################
+## Generate input data for plotting for SC methods without 
+## baseline covariate adjustment
+## input:
+## - rslt.all: data.frame combining results. Should contain
+##            the following columns:
+##   - t0: number of pre-treatment periods
+##   - n.units: number of units
+##   - SC_est, SC_OLS_est, NC_SC_est, NC_SC_constrained_est:
+##         Point estimates for different methods
+##########################################################
+
 getplotdata_nocov <- function(rslt.all, removeoutlier = F){
-  # c(SC.ate=SC.ate, ## unconstrained OLS
-  #   SE.ate2=SC.ate.constrained, ## constrained OLS
-  #   NC.ate=NC.ate,##NC ignore C
-  #   NC.ate2=NC.ate2,##NC adjust C
-  #   SC.se =SC.se, ## unconstrained OLS
-  #   NC.se =NC.se,NC.se.HAC=NC.se.HAC, ##NC ignore C
-  #   NC.se2=NC.se2,NC.se2.HAC=NC.se2.HAC##NC adjust C
-  # )
+
   n.rslt <- length(rslt.all)
   n.t0 <- length(t0.all)
   plotdat <- SCNC <- NULL
@@ -83,16 +101,22 @@ getplotdata_nocov <- function(rslt.all, removeoutlier = F){
   return(list(SCNC = SCNC, plotdat = plotdat, mycol = mycol))
 }
 
+################################################################
+## Generate input data for plotting for SC methods with  
+## baseline covariate adjustment
+## input:
+## - rslt.all: data.frame combining results. Should contain
+##            the following columns:
+##   - t0: number of pre-treatment periods
+##   - n.units: number of units
+##   - SC_est, SC_OLS_est, NC_SC_est, NC_SC_constrained_est:
+##     point estimates for different methods, adjusted for
+##     baseline covariates;
+##   - SC_est2, SC_OLS_est2, NC_SC_est2, NC_SC_constrained_est2:
+##     unadjusted point estimates for different methods
+################################################################
+
 getplotdata <- function(rslt.all, removeoutlier = F){
-  # c(SC.ate=SC.ate, ## unconstrained OLS
-  #   SE.ate2=SC.ate.constrained, ## constrained OLS
-  #   NC.ate=NC.ate,##NC ignore C
-  #   NC.ate2=NC.ate2,##NC adjust C
-  #   SC.se =SC.se, ## unconstrained OLS
-  #   NC.se =NC.se,NC.se.HAC=NC.se.HAC, ##NC ignore C
-  #   NC.se2=NC.se2,NC.se2.HAC=NC.se2.HAC##NC adjust C
-  # )
-  
   n.rslt <- length(rslt.all)
   n.t0 <- length(t0.all)
   mycol <- NULL
@@ -116,8 +140,8 @@ getplotdata <- function(rslt.all, removeoutlier = F){
     SCNC <- c(SCNC, OLS, OLS.ignoreC, SC, NC.ignoreC, NC)
     space <- NA
     if(n.units != max(rslt.all$n.units)){
+      ## organizing columns
       plotdat <- c(plotdat,
-                   #SC.constrain,space,
                    OLS.ignoreC, space, space,
                    OLS, space, space,
                    SC.ignoreC, space, space,
@@ -127,20 +151,20 @@ getplotdata <- function(rslt.all, removeoutlier = F){
                    NC_cons.ignoreC, space, space,
                    NC_cons, space,
                    space, space)
+      ## organizing colors
       mycol <- c(mycol,
                  colp.OLS, add.col, add.col,
                  colp.OLS, add.col, add.col,
                  colp.SC, add.col, add.col,
                  colp.SC, add.col, add.col,
-                 #colp.SC,add.col,
                  colp.NC, add.col, add.col,
                  colp.NC, add.col, add.col,
                  colp.NC_cons, add.col, add.col,
                  colp.NC_cons, add.col,
                  add.col, add.col)
     } else {
+      ## organizing columns
       plotdat <- c(plotdat,
-                   #SC.constrain,space,
                    OLS.ignoreC, space, space,
                    OLS, space, space,
                    SC.ignoreC, space,  space,
@@ -149,21 +173,20 @@ getplotdata <- function(rslt.all, removeoutlier = F){
                    NC, space,  space,
                    NC_cons.ignoreC, space,  space,
                    NC_cons)
+      ## organizing colors
       mycol <- c(mycol,
                  colp.OLS, add.col, add.col,
                  colp.OLS, add.col, add.col,
                  colp.SC, add.col, add.col,
                  colp.SC, add.col, add.col,
-                 #colp.SC,add.col,
                  colp.NC, add.col, add.col,
                  colp.NC, add.col, add.col,
                  colp.NC_cons, add.col, add.col,
                  colp.NC_cons)
     }
-  }#for(i in allind){
+  }
   
   if(removeoutlier == T){
-    ## remove outlier
     ind <- lapply(plotdat, FUN = function(x){
       if(!is.na(x[1])){
         which(x > quantile(x, 1 - xbound) | x < quantile(x, xbound))
@@ -181,6 +204,15 @@ getplotdata <- function(rslt.all, removeoutlier = F){
   return(list(SCNC = SCNC, plotdat = plotdat, mycol = mycol))
 }
 
+########################################################
+## Making plots to show the mean and SD of SC estimators
+## with baseline covariate adjustment
+## Input:
+## - plotdat: output from getplotdata
+## - mycol: colors for each column, contained in the 
+##          output data frame of
+## - myrange: deprecated
+########################################################
 makeplot2 <- function(plotdat, mycol, myrange){
   mean.bias <- sapply(plotdat, function(x) mean(x - true.beta))
   sd <- sapply(plotdat, function(x) sd(x - true.beta))
@@ -206,9 +238,7 @@ makeplot2 <- function(plotdat, mycol, myrange){
     L[ind.L] <- mean.bias[ind.L] - breakat - abs(mean.bias[ind.L] - L[ind.L] - breakat) * scale
   }
   ymin <- max(min(L, na.rm = T), -8.5)
-  # ymin=-myrange
   ymax <- min(max(U, na.rm = T), 8.5)
-  # ymax=myrange
   
   ind.OLS_ignoreC <- c(1:3 + 41 * 0, 1:3 + 41 * 1, 1:3 + 41 * 2)
   ind.OLS <- c(6:8 + 41 * 0, 6:8 + 41 * 1, 6:8 + 41 * 2)
@@ -296,32 +326,20 @@ makeplot2 <- function(plotdat, mycol, myrange){
   
   ind.ymin <- which.min(L); ind.ymax <- which.max(U)
   (y.label <- c(max(round(L[ind.ymin], 1), -8.5), -breakat, 0, breakat, min(round(U[ind.ymax], 1), 8.5)))
-  # y.label[which.min(y.label)]=round(ymin,2)
-  # y.label[which.max(y.label)]=round(ymax,2)
   (y.label.print <- c(max(round(L.save[ind.ymin], 1), -8.5), -breakat, 0, breakat, min(round(U.save[ind.ymax], 1), 8.5)))
   
-  # (y.label=c(seq(round(ymin,1),round(ymax,1),length.out=3),0))
-  # y.label=y.label[order(y.label)]
-  # # y.label[which.min(y.label)]=round(ymin,2)
-  # # y.label[which.max(y.label)]=round(ymax,2)
-  # y.label.print=y.label
-  # # y.label.print[1]=round(min(LU,na.rm=T),1)
-  # # y.label.print[5]=round(max(LU,na.rm=T),1)
+
   axis(side = 2, las = 1, cex.axis = 0.9, lwd = 0, lwd.ticks = 1,
        at = y.label,labels = y.label.print)
   
-  
-  
-  
+
   text(x = c(4.5, 14.5, 24.5, 34.5,
              45.5, 55.5, 65.5, 75.5,
              86.5, 96.5, 106.5, 116.5),
        y = ymin - (ymax - ymin) * 0.09, srt = 0, adj = 0.5,
        labels = rep(c("OLS", "SC", "PI", "cPI"), 3), 
        xpd = TRUE, cex = 0.9,lwd = 1)
-  # text(x=c(3.3,7.4,13.3,17.4,23.3,27.4)-0.5,
-  #      y=ymin-(ymax-ymin)*0.09,srt=0,adj=1,
-  #      labels=rep(c("OLS","PI"),3),xpd=TRUE,cex=0.9,lwd=1)
+
   xlabels = sapply(c(
     bquote(No.~ctrl~units==.(n.units.all[1]-1)),
     bquote(No.~ctrl~units==.(n.units.all[2]-1)),
@@ -333,9 +351,18 @@ makeplot2 <- function(plotdat, mycol, myrange){
   if(length(ind.U) > 0){
     plotrix::axis.break(axis = 2, breakpos = c(breakat), pos = -0.5, bgcol = "white")
   }
-  # if(length(ind.L)>0){plotrix::axis.break(axis=2,breakpos=c(-breakat),pos=-0.5,bgcol="white")}
+
 }
 
+########################################################
+## Making plots to show the mean and SD of SC estimators
+## without baseline covariate adjustment
+## Input:
+## - plotdat: output from getplotdata_nocov
+## - mycol: colors for each column, contained in the 
+##          output data frame of
+## - myrange: deprecated
+########################################################
 makeplot2_nocov <- function(plotdat, mycol, myrange){
   mean.bias <- sapply(plotdat, function(x) mean(x - true.beta))
   sd <- sapply(plotdat, sd)
@@ -361,9 +388,7 @@ makeplot2_nocov <- function(plotdat, mycol, myrange){
     L[ind.L] <- mean.bias[ind.L] - breakat - abs(mean.bias[ind.L] - L[ind.L] - breakat) * scale
   }
   ymin <- max(min(L, na.rm = T), -6.5)
-  # ymin=-myrange
   ymax <- min(max(U, na.rm = T), 6.5)
-  # ymax=myrange
   
   ## specify colors
   mypal <- brewer.pal(4, "Set1")
@@ -391,8 +416,7 @@ makeplot2_nocov <- function(plotdat, mycol, myrange){
   
   xHigh = 1:length(plotdat)
   xLow = 1:length(plotdat)
-  # yHigh = mean.bias-qnorm(0.975)*sd
-  # yLow = mean.bias+qnorm(0.975)*sd
+  
   yHigh = U
   yLow = L
   
@@ -413,17 +437,10 @@ makeplot2_nocov <- function(plotdat, mycol, myrange){
   
   ind.ymin = which.min(L); ind.ymax = which.max(U)
   (y.label = c(max(round(L[ind.ymin],1), -6.5), -breakat, 0, breakat, min(round(U[ind.ymax],1), 6.5)))
-  # y.label[which.min(y.label)]=round(ymin,2)
-  # y.label[which.max(y.label)]=round(ymax,2)
+
   (y.label.print = c(max(round(L.save[ind.ymin],1), -6.5),-breakat, 0, breakat, min(round(U.save[ind.ymax],1), 6.5)))
   
-  # (y.label=c(seq(round(ymin,1),breakat,round(ymax,1),length.out=3),0))
-  # y.label=y.label[order(y.label)]
-  # # y.label[which.min(y.label)]=round(ymin,2)
-  # # y.label[which.max(y.label)]=round(ymax,2)
-  # y.label.print=y.label
-  # # y.label.print[1]=round(min(LU,na.rm=T),1)
-  # # y.label.print[5]=round(max(LU,na.rm=T),1)
+
   axis(side=2, las=1, cex.axis=0.9,lwd=0,lwd.ticks=1,
        at = y.label, labels = y.label.print)
   
@@ -434,9 +451,7 @@ makeplot2_nocov <- function(plotdat, mycol, myrange){
        y = ymin - (ymax - ymin) * 0.09, srt = 0, adj = 0.5,
        labels = rep(c("OLS", "SC", "PI", "cPI"), 3), 
        xpd = TRUE, cex = 0.9,lwd = 1)
-  # text(x=c(3.3,7.4,13.3,17.4,23.3,27.4)-0.5,
-  #      y=ymin-(ymax-ymin)*0.09,srt=0,adj=1,
-  #      labels=rep(c("OLS","PI"),3),xpd=TRUE,cex=0.9,lwd=1)
+
   xlabels = sapply(c(
     bquote(No.~ctrl~units==.(n.units.all[1]-1)),
     bquote(No.~ctrl~units==.(n.units.all[2]-1)),
@@ -457,22 +472,16 @@ makeplot2_nocov <- function(plotdat, mycol, myrange){
   if(length(ind.U)>0){plotrix::axis.break(axis=2,breakpos=c(breakat),pos=-0.5,bgcol="white")}
   if(length(ind.L)>0){plotrix::axis.break(axis=2,breakpos=c(-breakat),pos=-0.5,bgcol="white")}
 }
+
 ########################################################################
 #################################### bias plot #########################
 ########################################################################
-# fixed.lambda <- F; 
 true.beta <- 2; n.rep <- 500
 t0.all <- c(30, 100, 200)
-#n.units.all <- c(1 + 4, 1 + 10, 1 + 20);
 n.units.all <- c(1 + 4, 1 + 6, 1 + 10);
 xbound <- 0.005
-# n.units.all=c(1+10,1+20,1+30);
 
-
-# U_is_fixed <- T; 
 myrange <- 200
-
-# if (mysd == 0.5) { myrange <- 100 }
 
 param_grid <- rbind(expand.grid(dist.epsilon = c("iid"),
                                 dist.lambda = c("stationary", "nonstationary"),
@@ -482,13 +491,6 @@ param_grid <- rbind(expand.grid(dist.epsilon = c("iid"),
                                 dist.lambda = c("stationary", "nonstationary"),
                                 U.setting = c("constrained", "unconstrained"),
                                 addcov = c(FALSE))) %>% unique()
-# param_grid <- expand.grid(dist.epsilon = c("iid"),
-#                           dist.lambda = c("stationary", "nonstationary"),
-#                           U.setting = c("constrained"),
-#                           addcov = c(FALSE)) 
-
-
-
 
 
 for (ii in 1:nrow(param_grid)) {      
@@ -511,14 +513,13 @@ for (ii in 1:nrow(param_grid)) {
                     "_t0_", paste(t0.all, collapse="_"),
                     "_nunits_", paste(n.units.all, collapse="_"),
                     "_nrep", n.rep,
-                    # "_U_is_fixed", U_is_fixed,
                     ".pdf"), width = (9 + 3) * 0.8, height = 5 * 0.8)
   par(mar = c(3.5, 3, 1, 1))
-  # for(arg3 in c(1,2,4,6,7)[1]){
-  
+
   
   rslt.all.combine <- NULL
   
+  ## Reading the simulation results and organizing into a single data frame
   for (n.units in n.units.all) {
     for (t0 in t0.all) {
       for(batch in 1:10){
@@ -593,9 +594,7 @@ legend("left",#x=-0,y=0.58,
          bquote("OLS, "~T[0]==.(t0.all[2])),
          bquote("OLS, "~T[0]==.(t0.all[3])),
          ###
-         # bquote("OLS, "~T[0]==.(t0.all[1])~", "~T==.(2*t0.all[1])),
-         # bquote("OLS, "~T[0]==.(t0.all[2])~", "~T==.(2*t0.all[2])),
-         # bquote("OLS, "~T[0]==.(t0.all[3])~", "~T==.(2*t0.all[3]))
+
          bquote("PI (w/o adj), "~T[0]==.(t0.all[1])),
          bquote("PI (w/ adj), "~~~T[0]==.(t0.all[1])),
          
@@ -607,9 +606,6 @@ legend("left",#x=-0,y=0.58,
          bquote("PI (w/ adj), "~~~T[0]==.(t0.all[3]))
        ),as.expression),
        pch=c(colp.SC,rep(colp.NC,each=2)
-             # colp.SC[1],colp.NC[1],
-             # colp.SC[2],colp.NC[2],
-             # colp.SC[3],colp.NC[3]
        ),
        lty=c(rep(1,3),rep(c(3,1),3)),
        #fill=colp,
@@ -659,62 +655,7 @@ legend(x = 0, y = 0.10, xjust = 0, yjust = 0.5,
        ncol = 3, cex = 2.4, bty = "n")
 dev.off()
 
-
-
-
-# ########################################################################
-# #################################### 95%CI ####################################
-# ########################################################################
-# rm(list=ls())
-# 
-# qq <- 1 - (1 - 0.95) / 2 ##95%CI
-# 
-# 
-# param_grid <- expand.grid(n.rep = 200,
-#                           t0 = c(50, 100, 200),
-#                           n.units = c(1 + 2, 1 + 10, 1 + 20),
-#                           addcov = c(T, F),
-#                           dist.epsilon = c("iid", "AR"))
-# true.beta <- 2
-# rslt.all.combine <- NULL
-# for (ii in 1:nrow(param_grid)) {
-#   n.rep <- param_grid[ii, "n.rep"]
-#   t0 <- param_grid[ii, "t0"]
-#   n.units <- param_grid[ii, "n.units"]
-#   dist.epsilon <- param_grid[ii, "dist.epsilon"]
-#   addcov <- param_grid[ii, "addcov"]
-#   
-#   for (batch in 1:10) {
-#     if (dist.epsilon == "iid") {
-#       rslt <- readRDS(file = paste0("results/LM_",
-#                                     "epsilon_", dist.epsilon,
-#                                     "cov_", addcov,
-#                                     "t0_", t0,
-#                                     "nunits_", n.units,
-#                                     "nrep", n.rep,
-#                                     "batch", batch,
-#                                     ".rds")) %>% 
-#         as.data.frame %>%
-#         transmute(SC.cover = as.numeric(SC.ate - qnorm(qq) * SC.se < true.beta &
-#                                           SC.ate + qnorm(qq) * SC.se > true.beta ),
-#                   NC.cover = as.numeric(NC.ate2 - qnorm(qq) * NC.se2 < true.beta &
-#                                           NC.ate2 + qnorm(qq) * NC.se2 > true.beta ),
-#                   CORR = dist.epsilon,
-#                   addcov = addcov,
-#                   nunits = n.units,
-#                   t0 = t0)
-#       rslt.all.combine <- rbind(rslt.all.combine, rslt)
-#     } else {
-#       rslt <- readRDS(file = paste0("results/LM_",
-#                                     "epsilon_", dist.epsilon,
-#                                     "cov_", addcov,
-#                                     "t0_", t0,
-#                                     "nunits_", n.units,
-#                                     "nrep", n.rep,
-#                                     "batch", batch,
-#                                     ".rds")) %>% 
-#         as.data.frame %>%
-#         transmute(SC.cover = as.numeric(SC.ate - qnorm(qq) * SC.se < true.beta &
+rue.beta &
 #                                           SC.ate + qnorm(qq) * SC.se > true.beta ),
 #                   NC.cover = as.numeric(NC.ate2 - qnorm(qq) * NC.se2.HAC < true.beta &
 #                                           NC.ate2 + qnorm(qq) * NC.se2.HAC > true.beta ),
